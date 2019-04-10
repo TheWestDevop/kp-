@@ -1,5 +1,6 @@
 package com.komepay.web.api;
 
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
@@ -28,11 +29,12 @@ public class APIService {
     @Consumes("application/json")
     public Response doAuth(User user) {
 
-        String result = "User created : " + user;
+        String result = "UserInterface created : " + user;
         return Response.status(201).entity(result).build();
 
     }
 
 
 }
+
 

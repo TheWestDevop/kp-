@@ -10,7 +10,22 @@ public class User {
     private int isemailverified;
     private int isphoneverified;
     private int status;
-    private LocalDate date;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", secret='" + secret + '\'' +
+                ", isemailverified=" + isemailverified +
+                ", isphoneverified=" + isphoneverified +
+                ", status=" + status +
+                ", date='" + date + '\'' +
+                '}';
+    }
+
+    private String date;
 
     public long getId() {
         return id;
@@ -68,11 +83,11 @@ public class User {
         this.status = status;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 }
