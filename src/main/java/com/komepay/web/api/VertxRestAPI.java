@@ -2,12 +2,16 @@ package com.komepay.web.api;
 
 import com.komepay.web.dao.CoinDao;
 import com.komepay.web.dao.CoinSettingsDao;
+import com.komepay.web.dao.ProfileDao;
+import com.komepay.web.dao.TransactionDao;
 import com.komepay.web.dao.UserDao;
 import com.komepay.web.dao.CoinBalanceDao;
 import com.komepay.web.models.Coin;
 import com.komepay.web.models.CoinBalance;
 import com.komepay.web.models.CoinSettings;
 import com.komepay.web.models.User;
+import com.komepay.web.models.Transaction;
+import com.komepay.web.models.Profile;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerResponse;
@@ -22,6 +26,8 @@ public class VertxRestAPI extends AbstractVerticle {
     CoinDao coinDao = new CoinDao();
     CoinBalanceDao coinBalanceDao = new CoinBalanceDao();
     CoinSettingsDao coinSettingDao = new CoinSettingsDao();
+    TransactionDao transactionDao =  new TransactionDao();
+    ProfileDao profileDao = new ProfileDao();
 
     @Override
     public void start(Future fuc){
@@ -71,7 +77,24 @@ public class VertxRestAPI extends AbstractVerticle {
         router.post("/api/coinsettings").handler(this::toSaveCoinSetting);
         router.put("/api/coinsettings").handler(this::toUpdateCoinSetting);
         router.delete("/api/coinsettings").handler(this::toDeleteCoinSetting);
-
+        //Transaction
+        router.get("/api/transaction").handler(rc -> {
+            HttpServerResponse response = rc.response();
+            response
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(transactionDao.getAllTransaction()));});
+        router.post("/api/transaction").handler(this::toSaveTransaction);
+        router.put("/api/transaction").handler(this::toUpdateTransaction);
+        router.delete("/api/transaction").handler(this::toDeleteTransaction);
+        //Profile
+        router.get("/api/profile").handler(rc -> {
+            HttpServerResponse response = rc.response();
+            response
+                    .putHeader("content-type", "application/json; charset=utf-8")
+                    .end(Json.encodePrettily(profileDao.getAllProfile()));});
+        router.post("/api/profile").handler(this::toSaveProfile);
+        router.put("/api/profile").handler(this::toUpdateProfile);
+        router.delete("/api/profile").handler(this::toDeleteProfile);
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(8282,result -> {
@@ -85,7 +108,7 @@ public class VertxRestAPI extends AbstractVerticle {
 
 
     }
-
+ //User
     private void  toSaveUser(RoutingContext routingContext){
 
         String username = routingContext.request().getParam("username");
@@ -326,7 +349,165 @@ private void  toDeleteCoinSetting(RoutingContext routingContext){
 
 }
 
+//Transaction
 
+    private void  toSaveTransaction(RoutingContext routingContext){
+
+        String description = routingContext.request().getParam("ddescription");
+        double credit = Integer.valueOf(routingContext.request().getParam("credit"));
+        double debit = Integer.valueOf(routingContext.request().getParam("debit"));
+        double  tax = Integer.valueOf(routingContext.request().getParam("tax"));
+        double commission  = Integer.valueOf(routingContext.request().getParam("commission"));
+
+
+        Transaction transaction =  new Transaction();
+        
+        transaction.setDescription(description);
+        transaction.setCredit(credit);
+        transaction.setDebit(debit);
+        transaction.setTax(tax);
+        transaction.setCommission(commission);
+      
+
+        transactionDao.save(transaction);
+
+        System.out.print(transaction);
+
+        routingContext.response()
+                .setStatusCode(201)
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(transactionDao.getAllTransaction()));
+
+    }
+    private void  toUpdateTransaction(RoutingContext routingContext){
+        String description = routingContext.request().getParam("ddescription");
+        double credit = Integer.valueOf(routingContext.request().getParam("credit"));
+        double debit = Integer.valueOf(routingContext.request().getParam("debit"));
+        double  tax = Integer.valueOf(routingContext.request().getParam("tax"));
+        double commission  = Integer.valueOf(routingContext.request().getParam("commission"));
+
+
+        Transaction transaction =  new Transaction();
+        
+        transaction.setDescription(description);
+        transaction.setCredit(credit);
+        transaction.setDebit(debit);
+        transaction.setTax(tax);
+        transaction.setCommission(commission);
+      
+
+        transactionDao.update(transaction);
+
+        System.out.print(transaction);
+
+        routingContext.response()
+                .setStatusCode(201)
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(transactionDao.getAllTransaction()));
+
+    }
+    private void  toDeleteTransaction(RoutingContext routingContext){
+
+        long id =  Integer.valueOf(routingContext.request().getParam("id"));
+
+        transactionDao.delete(id);
+        
+        routingContext.response()
+                .setStatusCode(201)
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(transactionDao.getAllTransaction()));
+
+    }
+
+//Profile
+private void  toSaveProfile(RoutingContext routingContext){
+    int uid = Integer.valueOf(routingContext.request().getParam("uid"));
+    String firstname = routingContext.request().getParam("firstname");
+    String lastname = routingContext.request().getParam("lastname");
+    String email = routingContext.request().getParam("email");
+    String phone = routingContext.request().getParam("phone");
+    String address = routingContext.request().getParam("address");
+    String address2 = routingContext.request().getParam("address2");
+    String city = routingContext.request().getParam("city");
+    String state = routingContext.request().getParam("state");
+    String country = routingContext.request().getParam("country");
+
+
+    Profile profile =  new Profile();
+
+    profile.setUid(uid);
+    profile.setFirstname(firstname);
+    profile.setLastname(lastname);
+    profile.setEmail(email);
+    profile.setPhone(phone);
+    profile.setAddress(address);
+    profile.setAddress2(address2);
+    profile.setCity(city);
+    profile.setState(state);
+    profile.setCountry(country);
+    
+
+    profileDao.save(profile);
+
+    System.out.print(profile);
+
+    routingContext.response()
+            .setStatusCode(201)
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(Json.encodePrettily(profileDao.getAllProfile()));
+
+}
+private void  toUpdateProfile(RoutingContext routingContext){
+     
+    int uid = Integer.valueOf(routingContext.request().getParam("uid"));
+    String firstname = routingContext.request().getParam("firstname");
+    String lastname = routingContext.request().getParam("lastname");
+    String email = routingContext.request().getParam("email");
+    String phone = routingContext.request().getParam("phone");
+    String address = routingContext.request().getParam("address");
+    String address2 = routingContext.request().getParam("address2");
+    String city = routingContext.request().getParam("city");
+    String state = routingContext.request().getParam("state");
+    String country = routingContext.request().getParam("country");
+    long id =  Integer.valueOf(routingContext.request().getParam("id"));
+
+    Profile profile =  new Profile();
+
+    profile.setId(id);
+    profile.setUid(uid);
+    profile.setFirstname(firstname);
+    profile.setLastname(lastname);
+    profile.setEmail(email);
+    profile.setPhone(phone);
+    profile.setAddress(address);
+    profile.setAddress2(address2);
+    profile.setCity(city);
+    profile.setState(state);
+    profile.setCountry(country);
+    
+
+    profileDao.update(profile);
+
+    System.out.print(profile);
+
+    routingContext.response()
+            .setStatusCode(201)
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(Json.encodePrettily(profileDao.getAllProfile()));
+
+}
+private void  toDeleteProfile(RoutingContext routingContext){
+
+    long id =  Integer.valueOf(routingContext.request().getParam("id"));
+
+    profileDao.delete(id);
+    
+    routingContext.response()
+            .setStatusCode(201)
+            .putHeader("content-type", "application/json; charset=utf-8")
+            .end(Json.encodePrettily(profileDao.getAllProfile()));
+
+}
 
 
 
